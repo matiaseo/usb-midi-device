@@ -1,11 +1,7 @@
 /*
- * 
- * This file is part of the PlatformIO-STM32F4Discovery-USBMIDI-Example project.
- * It is heavily based on the libopencm3 example for USB MIDI devices:
- * https://github.com/libopencm3/libopencm3-examples/tree/master/examples/stm32/f4/stm32f4-discovery/usb_midi
+ * This file is part of the libopencm3 project.
  *
  * Copyright (C) 2014 Daniel Thompson <daniel@redfelineninja.org.uk>
- * Copyright (C) 2019 Uli Köhler <ukoehler@techoverflow.net>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -275,7 +271,7 @@ static const struct usb_config_descriptor config = {
 static char usb_serial_number[25]; /* 12 bytes of desig and a \0 */
 
 static const char * usb_strings[] = {
-	"TechOverflow",
+	"libopencm3.org",
 	"MIDI demo",
 	usb_serial_number
 };
@@ -349,8 +345,6 @@ static void button_send_event(usbd_device *usbd_dev, int pressed)
 	while (usbd_ep_write_packet(usbd_dev, 0x81, buf, sizeof(buf)) == 0);
 }
 
-#define LEDPIN (GPIO12)
-
 static void button_poll(usbd_device *usbd_dev)
 {
 	static uint32_t button_state = 0;
@@ -364,7 +358,6 @@ static void button_poll(usbd_device *usbd_dev)
 	button_state = (button_state << 1) | (GPIOA_IDR & 1);
 	if ((0 == button_state) != (0 == old_button_state)) {
 		button_send_event(usbd_dev, !!button_state);
-        gpio_toggle(GPIOD, LEDPIN);
 	}
 }
 
@@ -377,9 +370,6 @@ int main(void)
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_OTGFS);
 
-	/* LED pin */
-    gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LEDPIN);
-
 	/* USB pins */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
 	gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
@@ -389,7 +379,9 @@ int main(void)
 	/* Button pin */
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);
 
-	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+	usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
+			usb_strings, 3,
+			usbd_control_buffer, sizeof(usbd_control_buffer));
 
 	usbd_register_set_config_callback(usbd_dev, usbmidi_set_config);
 
