@@ -18,6 +18,14 @@ struct Note {
     Note operator* (float percent) const {
         return Note(id, static_cast<uint8_t>(128.0 * percent) & 0x7f);
     }
+
+    bool operator== (const Note& note) const {
+        return id == note.id && velocity == note.velocity;
+    }
+
+    bool operator!= (const Note& note) const {
+        return id != note.id && velocity != note.velocity;
+    }
 };
 
 #endif
