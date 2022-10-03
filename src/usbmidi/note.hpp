@@ -15,8 +15,8 @@ struct Note {
         return Note(static_cast<uint8_t>(id + delta) & 0x7f, velocity);
     }
 
-    Note operator* (float percent) const {
-        return Note(id, static_cast<uint8_t>(128.0 * percent) & 0x7f);
+    Note operator* (uint8_t velocity) const {
+        return Note(id, velocity & 0x7f);
     }
 
     bool operator== (const Note& note) const {

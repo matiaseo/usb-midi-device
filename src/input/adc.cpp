@@ -18,5 +18,9 @@ uint16_t readAnalogChannel(uint8_t channel) {
 	adc_set_regular_sequence(ADC1, 1, channels);
 	adc_start_conversion_regular(ADC1);
 	while (!adc_eoc(ADC1));
-	return static_cast<uint16_t>(adc_read_regular(ADC1));
+	uint16_t firstMeasurement = adc_read_regular(ADC1);
+	adc_start_conversion_regular(ADC1);
+	while (!adc_eoc(ADC1));
+	uint16_t secondMeasurement = adc_read_regular(ADC1);
+	return (firstMeasurement + secondMeasurement + 1) >> 1; // Average and round
 }
